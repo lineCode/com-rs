@@ -20,17 +20,11 @@ install:
         Start-FileDownload "https://static.rust-lang.org/dist/rust-$env:RUST_VERSION-x86_64-pc-windows-gnu.exe" -FileName rust.exe
       }
   - rust.exe /VERYSILENT /NORESTART /DIR="C:\Program Files\Rust"
-  - SET PATH=%PATH%;C:\Program Files\Rust\bin;C:\Python27;C:\Python27\Scripts
+  - SET PATH=%PATH%;C:\Program Files\Rust\bin
   - rustc -V
   - cargo -V
-  - pip install ghp-import
 
 build: false
 
 test_script:
   - cargo test -v
-
-deploy_script:
-  - cargo doc
-  - python C:\Python27\Scripts\ghp-import -n target/doc
-  - git push -qf https://%GH_TOKEN%@github.com/%APPVEYOR_REPO_NAME%.git gh-pages
