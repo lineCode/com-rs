@@ -80,7 +80,7 @@ macro_rules! com_interface {
         }
         trait $tr:ident: $($base_tr:ident),+ {
             $($(#[$fn_attr:meta])*
-            fn $func:ident($($i:ident: $t:ty),*) -> $rt:ty),+
+            fn $func:ident($($i:ident: $t:ty),*) -> $rt:ty),*
         }
     ) =>
     (
@@ -90,7 +90,7 @@ macro_rules! com_interface {
             #[derive(Debug)]
             struct $iface: $($base_iface),* {
                 vtable: $vtable {
-                    $(fn $func($($t),*) -> $rt),+
+                    $(fn $func($($t),*) -> $rt),*
                 }
             }
         }
@@ -99,7 +99,7 @@ macro_rules! com_interface {
             struct $iface;
             trait $tr: $($base_tr),* {
                 $($(#[$fn_attr])*
-                fn $func($($i: $t),*) -> $rt),+
+                fn $func($($i: $t),*) -> $rt),*
             }
         }
 
@@ -145,7 +145,7 @@ macro_rules! __com_struct {
         $(#[$attr:meta])*
         struct $name:ident: $base_name:ty {
             vtable: $vtable:ident {
-                $(fn $func:ident($($t:ty),*) -> $rt:ty),+
+                $(fn $func:ident($($t:ty),*) -> $rt:ty),*
             }
         }
     ) => (
@@ -159,13 +159,13 @@ macro_rules! __com_struct {
         #[doc(hidden)]
         pub struct $vtable {
             base: <$base_name as $crate::ComInterface>::Vtable,
-            $(pub $func: extern "stdcall" fn(*const $name, $($t),*) -> $rt),+
+            $(pub $func: extern "stdcall" fn(*const $name, $($t),*) -> $rt),*
         }
     );
     (
         $(#[$attr:meta])* struct $name:ident: $base_name:ty, $($x:ty),* {
             vtable: $vtable:ident {
-                $(fn $func:ident($($t:ty),*) -> $rt:ty),+
+                $(fn $func:ident($($t:ty),*) -> $rt:ty),*
             }
         }
     ) => (
@@ -173,7 +173,7 @@ macro_rules! __com_struct {
         __com_struct! {
             $(#[$attr])* struct $name: $base_name {
                 vtable: $vtable {
-                    $(fn $func($($t),*) -> $rt),+
+                    $(fn $func($($t),*) -> $rt),*
                 }
             }
         }
@@ -187,7 +187,7 @@ macro_rules! __com_trait {
         struct $iface:ident;
         trait $tr:ident: $base_tr:ident {
             $($(#[$fn_attr:meta])*
-            fn $func:ident($($i:ident: $t:ty),*) -> $rt:ty),+
+            fn $func:ident($($i:ident: $t:ty),*) -> $rt:ty),*
         }
     ) => (
         pub trait $tr: $base_tr {
@@ -195,21 +195,21 @@ macro_rules! __com_trait {
             unsafe fn $func(&self, $($i: $t),*) -> $rt{
                 let obj: &&$iface = ::std::mem::transmute(&self);
                 ((*obj.vtable).$func)(*obj $(,$i)*)
-            })+
+            })*
         }
     );
     (
         struct $iface:ident;
         trait $tr:ident: $base_tr:ident, $($x:ident),* {
             $($(#[$fn_attr:meta])*
-            fn $func:ident($($i:ident: $t:ty),*) -> $rt:ty),+
+            fn $func:ident($($i:ident: $t:ty),*) -> $rt:ty),*
         }
     ) => (
         // Discard additional base traits
         __com_trait! {
             struct $iface;
             trait $tr: $base_tr {
-                $($(#[$fn_attr])* fn $func($($i: $t),*) -> $rt),+
+                $($(#[$fn_attr])* fn $func($($i: $t),*) -> $rt),*
             }
         }
     )

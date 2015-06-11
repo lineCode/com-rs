@@ -1,5 +1,5 @@
 /*!
-# com-rs 0.1.0
+# com-rs 0.1.1
 Rust bindings for the Win32 [Component Object Model]
 (https://msdn.microsoft.com/en-us/library/ms680573.aspx).
 
