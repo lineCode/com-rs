@@ -1,0 +1,15 @@
+[package]
+name = "com-rs"
+version = "0.1.0"
+
+description = "Rust bindings for the Win32 COM API"
+repository = "https://github.com/Eljay/com-rs"
+documentation = "http://eljay.github.io/com-rs/com_rs/index.html"
+
+authors = ["Lee Jeffery <lee@leejeffery.co.uk>"]
+license = "MIT"
+readme = "README.md"
+
+[dependencies]
+libc = "0.1.8"
+winapi = "0.1.20"
