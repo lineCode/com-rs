@@ -157,6 +157,7 @@ macro_rules! __com_struct {
 
         #[repr(C)]
         #[doc(hidden)]
+        #[allow(missing_debug_implementations)]
         pub struct $vtable {
             base: <$base_name as $crate::ComInterface>::Vtable,
             $(pub $func: extern "stdcall" fn(*const $name, $($t),*) -> $rt),*

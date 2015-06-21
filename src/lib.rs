@@ -1,5 +1,5 @@
 /*!
-# com-rs 0.1.1
+# com-rs 0.1.2
 Rust bindings for the Win32 [Component Object Model]
 (https://msdn.microsoft.com/en-us/library/ms680573.aspx).
 
@@ -17,6 +17,9 @@ This crate is composed of three main components:
 //   IUnknown interfaces.
 // * Tests for IUnknown/ComPtr, hard to test with no way of acquiring
 //   IUnknown objects directly.
+
+#![deny(missing_debug_implementations)]
+#![deny(missing_docs)]
 
 extern crate libc;
 extern crate winapi;
