@@ -1,6 +1,5 @@
 #[macro_use]
 extern crate com_rs;
-extern crate libc;
 
 use com_rs::{ComPtr, IUnknown, Unknown};
 
@@ -42,7 +41,7 @@ com_interface! {
 
 #[test]
 fn test_as_ptr() {
-    use libc::c_void;
+    use std::os::raw::c_void;
 
     let foo = ComPtr::<IFoo>::new();
     let bar = ComPtr::<IBar>::new();

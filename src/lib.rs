@@ -1,5 +1,5 @@
 /*!
-# com-rs 0.1.2
+# com-rs 0.1.3
 Rust bindings for the Win32 [Component Object Model]
 (https://msdn.microsoft.com/en-us/library/ms680573.aspx).
 
@@ -21,7 +21,6 @@ This crate is composed of three main components:
 #![deny(missing_debug_implementations)]
 #![deny(missing_docs)]
 
-extern crate libc;
 extern crate winapi;
 
 // Re-export otherwise macro users need to have winapi in scope
