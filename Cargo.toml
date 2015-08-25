@@ -9,6 +9,3 @@ documentation = "http://eljay.github.io/com-rs/com_rs/index.html"
 authors = ["Lee Jeffery <lee@leejeffery.co.uk>"]
 license = "MIT"
 readme = "README.md"
-
-[dependencies]
-winapi = "~0.2.0"

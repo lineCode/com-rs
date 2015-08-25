@@ -5,18 +5,16 @@ Macro for generating COM interface definitions.
 ```
 #[macro_use]
 extern crate com_rs;
-use com_rs::{IUnknown, Unknown};
+use com_rs::IUnknown;
 
 com_interface! {
-    struct IFoo: IUnknown {
+    interface IFoo: IUnknown {
         iid: IID_IFOO {
             0x12345678, 0x90AB, 0xCDEF,
             0x12, 0x34, 0x56, 0x78, 0x90, 0xAB, 0xCD, 0xEF
         },
-        vtable: IFooVtbl
-    }
-    trait Foo: Unknown {
-        fn foo() -> bool
+        vtable: IFooVtbl,
+        fn foo() -> bool;
     }
 }
 # fn main() { }
@@ -39,24 +37,22 @@ to the type definitions. e.g:
 ```
 # #[macro_use]
 # extern crate com_rs;
-# use com_rs::{IUnknown, Unknown};
+# use com_rs::IUnknown;
 # com_interface! {
-#     struct IFoo: IUnknown {
+#     interface IFoo: IUnknown {
 #         iid: IID_IFOO { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-#         vtable: IFooVtbl
+#         vtable: IFooVtbl,
+#         fn foo() -> bool;
 #     }
-#     trait Foo: Unknown { fn foo() -> bool }
 # }
 com_interface! {
-    struct IBar: IFoo, IUnknown {
+    interface IBar: IFoo, IUnknown {
         iid: IID_IBAR {
             0x12345678, 0x90AB, 0xCDEF,
             0x12, 0x34, 0x56, 0x78, 0x90, 0xAB, 0xCD, 0xEF
         },
-        vtable: IBarVtbl
-    }
-    trait Bar: Foo, Unknown {
-        fn bar(baz: i32) -> ()
+        vtable: IBarVtbl,
+        fn bar(baz: i32) -> ();
     }
 }
 # fn main() { }
@@ -74,144 +70,84 @@ child interface.
 macro_rules! com_interface {
     (
         $(#[$iface_attr:meta])*
-        struct $iface:ident: $($base_iface:ty),* {
+        interface $iface:ident: $base_iface:ty {
             iid: $iid:ident { $d1:expr, $d2:expr, $d3:expr, $($d4:expr),+ },
-            vtable: $vtable:ident
-        }
-        trait $tr:ident: $($base_tr:ident),+ {
-            $($(#[$fn_attr:meta])*
-            fn $func:ident($($i:ident: $t:ty),*) -> $rt:ty),*
+            vtable: $vtable:ident,
+            $(
+                $(#[$fn_attr:meta])*
+                fn $func:ident($($i:ident: $t:ty),*) -> $rt:ty;
+            )*
         }
     ) =>
     (
-        __com_struct! {
-            $(#[$iface_attr])*
-            #[allow(raw_pointer_derive)]
-            #[derive(Debug)]
-            struct $iface: $($base_iface),* {
-                vtable: $vtable {
-                    $(fn $func($($t),*) -> $rt),*
-                }
+        #[allow(missing_debug_implementations)]
+        #[doc(hidden)]
+        #[repr(C)]
+        pub struct $vtable {
+            base: <$base_iface as $crate::ComInterface>::Vtable,
+            $($func: extern "stdcall" fn(*const $iface, $($t),*) -> $rt),*
+        }
+
+        $(#[$iface_attr])*
+        #[allow(raw_pointer_derive)]
+        #[derive(Debug)]
+        #[repr(C)]
+        pub struct $iface {
+            vtable: *const $vtable
+        }
+
+        impl $iface {
+            $($(#[$fn_attr])*
+            pub unsafe fn $func(&self, $($i: $t),*) -> $rt {
+                ((*self.vtable).$func)(self $(,$i)*)
+            })*
+        }
+
+        impl ::std::ops::Deref for $iface {
+            type Target = $base_iface;
+            fn deref(&self) -> &$base_iface {
+                unsafe { ::std::mem::transmute(self) }
             }
         }
 
-        __com_trait! {
-            struct $iface;
-            trait $tr: $($base_tr),* {
-                $($(#[$fn_attr])*
-                fn $func($($i: $t),*) -> $rt),*
-            }
-        }
+        const $iid: $crate::IID = $crate::IID {
+            data1: $d1,
+            data2: $d2,
+            data3: $d3,
+            data4: [$($d4),+]
+        };
 
-        __iid!($iid = $d1, $d2, $d3, $($d4),+);
+        unsafe impl $crate::AsComPtr<$iface> for $iface {}
+        unsafe impl $crate::AsComPtr<$base_iface> for $iface {}
 
-        // Implement interface traits
-        impl $tr for $iface { }
-        $(impl $base_tr for $iface { })*
-
-        // Implement pointer conversion trait
-        unsafe impl $crate::AsPtr<$iface> for $iface { }
-        $(unsafe impl $crate::AsPtr<$base_iface> for $iface { })*
-
-        // Implement helper trait
         unsafe impl $crate::ComInterface for $iface {
             #[doc(hidden)]
             type Vtable = $vtable;
             fn iid() -> $crate::IID { $iid }
         }
     );
-}
 
-// NOTE: all macros below this line are hidden because they shouldn't be used
-// directly, but they have to be exported so com_interface can use them.
 
-#[doc(hidden)]
-#[macro_export]
-macro_rules! __iid {
-    ($id:ident = $d1:expr, $d2:expr, $d3:expr, $($d4:expr),+) => (
-        const $id: $crate::IID = $crate::IID {
-            Data1: $d1,
-            Data2: $d2,
-            Data3: $d3,
-            Data4: [$($d4),+]
-        };
-    )
-}
-
-#[doc(hidden)]
-#[macro_export]
-macro_rules! __com_struct {
     (
-        $(#[$attr:meta])*
-        struct $name:ident: $base_name:ty {
-            vtable: $vtable:ident {
-                $(fn $func:ident($($t:ty),*) -> $rt:ty),*
-            }
+        $(#[$iface_attr:meta])*
+        interface $iface:ident: $base_iface:ty, $($extra_base:ty),+ {
+            iid: $iid:ident { $d1:expr, $d2:expr, $d3:expr, $($d4:expr),+ },
+            vtable: $vtable:ident,
+            $(
+                $(#[$fn_attr:meta])*
+                fn $func:ident($($i:ident: $t:ty),*) -> $rt:ty;
+            )*
         }
     ) => (
-        #[repr(C)]
-        $(#[$attr])*
-        pub struct $name {
-            vtable: *const $vtable
+        com_interface! {
+            $(#[$iface_attr])*
+            interface $iface: $base_iface {
+                iid: $iid { $d1, $d2, $d3, $($d4),+ },
+                vtable: $vtable,
+                $($(#[$fn_attr])* fn $func($($i: $t),*) -> $rt;)*
+            }
         }
 
-        #[repr(C)]
-        #[doc(hidden)]
-        #[allow(missing_debug_implementations)]
-        pub struct $vtable {
-            base: <$base_name as $crate::ComInterface>::Vtable,
-            $(pub $func: extern "stdcall" fn(*const $name, $($t),*) -> $rt),*
-        }
-    );
-    (
-        $(#[$attr:meta])* struct $name:ident: $base_name:ty, $($x:ty),* {
-            vtable: $vtable:ident {
-                $(fn $func:ident($($t:ty),*) -> $rt:ty),*
-            }
-        }
-    ) => (
-        // Discard additional base interfaces
-        __com_struct! {
-            $(#[$attr])* struct $name: $base_name {
-                vtable: $vtable {
-                    $(fn $func($($t),*) -> $rt),*
-                }
-            }
-        }
-    )
-}
-
-#[doc(hidden)]
-#[macro_export]
-macro_rules! __com_trait {
-    (
-        struct $iface:ident;
-        trait $tr:ident: $base_tr:ident {
-            $($(#[$fn_attr:meta])*
-            fn $func:ident($($i:ident: $t:ty),*) -> $rt:ty),*
-        }
-    ) => (
-        pub trait $tr: $base_tr {
-            $($(#[$fn_attr])*
-            unsafe fn $func(&self, $($i: $t),*) -> $rt{
-                let obj: &&$iface = ::std::mem::transmute(&self);
-                ((*obj.vtable).$func)(*obj $(,$i)*)
-            })*
-        }
-    );
-    (
-        struct $iface:ident;
-        trait $tr:ident: $base_tr:ident, $($x:ident),* {
-            $($(#[$fn_attr:meta])*
-            fn $func:ident($($i:ident: $t:ty),*) -> $rt:ty),*
-        }
-    ) => (
-        // Discard additional base traits
-        __com_trait! {
-            struct $iface;
-            trait $tr: $base_tr {
-                $($(#[$fn_attr])* fn $func($($i: $t),*) -> $rt),*
-            }
-        }
+        $(unsafe impl $crate::AsComPtr<$extra_base> for $iface {})*
     )
 }

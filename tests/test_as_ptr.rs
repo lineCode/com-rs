@@ -1,41 +1,35 @@
 #[macro_use]
 extern crate com_rs;
 
-use com_rs::{ComPtr, IUnknown, Unknown};
+use com_rs::{ComPtr, IUnknown};
 
 com_interface! {
     /// IFoo struct
-    struct IFoo: IUnknown {
+    interface IFoo: IUnknown {
         iid: IID_IFOO { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-        vtable: IFooVtbl
-    }
-    trait Foo: Unknown {
+        vtable: IFooVtbl,
         /// foo fn
-        fn foo() -> ()
+        fn foo() -> ();
     }
 }
 
 com_interface! {
     /// IBar struct
-    struct IBar: IFoo, IUnknown {
+    interface IBar: IFoo, IUnknown {
         iid: IID_IBAR { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-        vtable: IBarVtbl
-    }
-    trait Bar: Foo, Unknown {
+        vtable: IBarVtbl,
         /// bar method
-        fn bar() -> ()
+        fn bar() -> ();
     }
 }
 
 com_interface! {
     /// IBaz struct
-    struct IBaz: IBar, IFoo, IUnknown {
+    interface IBaz: IBar, IFoo, IUnknown {
         iid: IID_IBAZ { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-        vtable: IBazVtbl
-    }
-    trait Baz: Bar, Foo, Unknown {
+        vtable: IBazVtbl,
         /// baz method
-        fn baz() -> ()
+        fn baz() -> ();
     }
 }
 

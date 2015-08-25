@@ -3,8 +3,7 @@ use std::ops::Deref;
 use std::os::raw::c_void;
 use std::ptr;
 
-use IID;
-use unknown::Unknown;
+use {IID, IUnknown};
 
 /**
 Wrapper type for COM interface pointers.
@@ -14,11 +13,11 @@ Wrapper type for COM interface pointers.
 `ComPtr<T>` has the following methods for accessing the underlying pointer:
 
 * `as_ptr` returns the raw pointer `*const T`
-* `as_mut` returns a mutable reference to the raw pointer `&mut *mut T`
+* `as_mut_ptr` returns a mutable reference to the raw pointer `&mut *mut T`
 
-The `AsPtr` trait defines which pointer types can be returned by these methods.
-These methods should be used carefully to ensure the returned pointer does not
-outlive the `ComPtr` object.
+The `AsComPtr` trait defines which pointer types can be returned by these
+methods. These methods should be used carefully to ensure the returned pointers
+do not outlive the `ComPtr` object.
 
 ```
 extern crate com_rs;
@@ -29,14 +28,15 @@ fn use_iunknown_object(p: *const IUnknown) { }
 
 fn main() {
     let mut unknown: ComPtr<IUnknown> = ComPtr::new();
-    create_iunknown_object(unknown.as_mut());
+    create_iunknown_object(unknown.as_mut_ptr());
     use_iunknown_object(unknown.as_ptr());
 }
 ```
 
 ## Reference Counting
-`ComPtr` implements the `Clone` and `Drop` traits, which call `Unknown::add_ref`
-and `Unknown::release` respectively to handle the internal reference counting.
+`ComPtr` implements the `Clone` and `Drop` traits, which call the
+`IUnknown::add_ref` and `IUnknown::release` methods respectively to handle the
+internal reference counting.
 
 ## Accessing COM interface methods
 `ComPtr<T>` coerces into `T` using the `Deref` trait, allowing interface methods
@@ -48,7 +48,7 @@ pointer in this way results in a panic. All method calls should be guarded with
 # use com_rs::*;
 # fn create_iunknown_object(p: *mut *mut IUnknown) { }
 let mut ptr: ComPtr<IUnknown> = ComPtr::new();
-create_iunknown_object(ptr.as_mut());
+create_iunknown_object(ptr.as_mut_ptr());
 if !ptr.is_null() {
     // This is just for demonstration, don't call these directly
     unsafe { ptr.add_ref() };
@@ -58,7 +58,7 @@ if !ptr.is_null() {
 
 ## Conversion using `From`
 `ComPtr<T>` also implements the `From` trait for conversion between different
-COM interfaces. This is a wrapper around the `Unknown::query_interface` method
+COM interfaces. This is a wrapper around the `IUnknown::query_interface` method
 which automatically uses the IID of the target type.
 
 ```
@@ -66,7 +66,7 @@ which automatically uses the IID of the target type.
 # fn create_iunknown_object(p: *mut *mut IUnknown) { }
 # type IFoobar = IUnknown;
 let mut unknown: ComPtr<IUnknown> = ComPtr::new();
-create_iunknown_object(unknown.as_mut());
+create_iunknown_object(unknown.as_mut_ptr());
 let other: ComPtr<IFoobar> = ComPtr::from(&unknown);
 ```
 This will try to query the `IFoobar` interface on the unknown object. If the
@@ -80,10 +80,9 @@ pub struct ComPtr<T: ComInterface> {
     ptr: *mut T
 }
 
-
 /// Helper trait for `ComPtr`. Implemented automatically by the
 /// `com_interface!` macro.
-pub unsafe trait ComInterface: Unknown {
+pub unsafe trait ComInterface: AsComPtr<IUnknown> {
     #[doc(hidden)]
     type Vtable;
     /// Get the IID associated with a COM interface struct.
@@ -91,8 +90,8 @@ pub unsafe trait ComInterface: Unknown {
 }
 
 /// Helper trait for `ComPtr`. Defines which types of raw pointer can be
-/// returned by `as_ptr`/`as_mut`.
-pub unsafe trait AsPtr<T> { }
+/// returned by `as_ptr`/`as_mut_ptr`.
+pub unsafe trait AsComPtr<T> { }
 
 impl<T: ComInterface> ComPtr<T> {
     /// Constructs a new `ComPtr<T>`.
@@ -100,14 +99,14 @@ impl<T: ComInterface> ComPtr<T> {
         ComPtr { ptr: ptr::null_mut() }
     }
 
-    /// Returns the raw pointer as type `U`. Relies on the `AsPtr` trait.
-    pub fn as_ptr<U>(&self) -> *const U where T: AsPtr<U> {
+    /// Returns the raw pointer as type `U`. Depends on the `AsComPtr` trait.
+    pub fn as_ptr<U>(&self) -> *const U where T: AsComPtr<U> {
         self.ptr as *const U
     }
 
     /// Returns a mutable reference to the raw pointer.
-    /// Relies on the 'AsPtr' trait.
-    pub fn as_mut<U>(&mut self) -> &mut *mut U where T: AsPtr<U> {
+    /// Depends on the 'AsComPtr' trait.
+    pub fn as_mut_ptr<U>(&mut self) -> &mut *mut U where T: AsComPtr<U> {
         unsafe { mem::transmute(&mut self.ptr) }
     }
 
@@ -125,17 +124,20 @@ impl<T: ComInterface> ComPtr<T> {
 
 
 /// All types can be cast into `c_void` pointers.
-unsafe impl<T: ComInterface> AsPtr<c_void> for T { }
+unsafe impl<T: ComInterface> AsComPtr<c_void> for T { }
 
-impl<'a, T: ComInterface, U: ComInterface> From<&'a ComPtr<T>> for ComPtr<U> {
+impl<'a, T, U> From<&'a ComPtr<T>> for ComPtr<U>
+    where T: ComInterface, U: ComInterface + AsComPtr<c_void> {
     /// Create a `ComPtr` of a different interface type `U`. Calls
-    /// `Unknown::query_interface` and returns a new `ComPtr<U>` object.
+    /// `IUnknown::query_interface` and returns a new `ComPtr<U>` object.
     /// If the requested interface is unavailable, the returned `ComPtr<U>`
     /// will contain a null pointer.
     fn from(other: &'a ComPtr<T>) -> ComPtr<U> {
         let mut new: ComPtr<U> = ComPtr::new();
         if !other.is_null() {
-            unsafe { other.query_interface(&U::iid(), new.as_mut()) };
+            unsafe {
+                (*other.as_ptr()).query_interface(&U::iid(), new.as_mut_ptr());
+            }
         }
         new
     }
@@ -156,11 +158,11 @@ impl<T: ComInterface> Deref for ComPtr<T> {
 
 impl<T: ComInterface> Clone for ComPtr<T> {
     /// Clones the `ComPtr<T>`. Increments the internal reference counter by
-    /// calling `Unknown::add_ref` on the contained COM object
+    /// calling `IUnknown::add_ref` on the contained COM object
     /// (if the pointer is non-null).
     fn clone(&self) -> ComPtr<T> {
         if !self.is_null() {
-            unsafe { self.add_ref() };
+            unsafe { (*self.as_ptr()).add_ref() };
         }
         ComPtr { ptr: self.ptr }
     }
@@ -168,11 +170,11 @@ impl<T: ComInterface> Clone for ComPtr<T> {
 
 impl<T: ComInterface> Drop for ComPtr<T> {
     /// Drops the `ComPtr<T>`. Decrements the internal reference counter by
-    /// calling `Unknown::release` on the contained COM object
+    /// calling `IUnknown::release` on the contained COM object
     /// (if the pointer is non-null).
     fn drop(&mut self) {
         if !self.is_null() {
-            unsafe { self.release() };
+            unsafe { (*self.as_ptr()).release() };
         }
     }
 }

@@ -18,16 +18,29 @@ This crate is composed of three main components:
 // * Tests for IUnknown/ComPtr, hard to test with no way of acquiring
 //   IUnknown objects directly.
 
+#![deny(dead_code)]
 #![deny(missing_debug_implementations)]
 #![deny(missing_docs)]
 
-extern crate winapi;
+pub use comptr::{AsComPtr, ComInterface, ComPtr};
+pub use unknown::IUnknown;
 
-// Re-export otherwise macro users need to have winapi in scope
-pub use winapi::GUID as IID;
+/// Interface identifier.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[repr(C)]
+pub struct IID {
+    /// First component, 32-bit value.
+    pub data1: u32,
+    /// Second component, 16-bit value.
+    pub data2: u16,
+    /// Third component, 16-bit value.
+    pub data3: u16,
+    /// Fourth component, array of 8-bit values.
+    pub data4: [u8; 8],
+}
 
-pub use comptr::{AsPtr, ComPtr, ComInterface};
-pub use unknown::{IUnknown, Unknown};
+/// Result type.
+pub type HResult = i32;
 
 #[macro_use]
 mod macros;
