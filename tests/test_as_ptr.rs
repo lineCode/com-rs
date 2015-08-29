@@ -3,30 +3,33 @@ extern crate com_rs;
 
 use com_rs::{ComPtr, IUnknown};
 
+iid!(IID_IFOO = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 com_interface! {
     /// IFoo struct
     interface IFoo: IUnknown {
-        iid: IID_IFOO { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        iid: IID_IFOO,
         vtable: IFooVtbl,
         /// foo fn
         fn foo() -> ();
     }
 }
 
+iid!(IID_IBAR = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 com_interface! {
     /// IBar struct
     interface IBar: IFoo, IUnknown {
-        iid: IID_IBAR { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        iid: IID_IBAR,
         vtable: IBarVtbl,
         /// bar method
         fn bar() -> ();
     }
 }
 
+iid!(IID_IBAZ = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 com_interface! {
     /// IBaz struct
     interface IBaz: IBar, IFoo, IUnknown {
-        iid: IID_IBAZ { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        iid: IID_IBAZ,
         vtable: IBazVtbl,
         /// baz method
         fn baz() -> ();

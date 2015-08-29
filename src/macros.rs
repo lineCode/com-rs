@@ -7,12 +7,12 @@ Macro for generating COM interface definitions.
 extern crate com_rs;
 use com_rs::IUnknown;
 
+iid!(IID_IFOO =
+    0x12345678, 0x90AB, 0xCDEF, 0x12, 0x34, 0x56, 0x78, 0x90, 0xAB, 0xCD, 0xEF);
+
 com_interface! {
     interface IFoo: IUnknown {
-        iid: IID_IFOO {
-            0x12345678, 0x90AB, 0xCDEF,
-            0x12, 0x34, 0x56, 0x78, 0x90, 0xAB, 0xCD, 0xEF
-        },
+        iid: IID_IFOO,
         vtable: IFooVtbl,
         fn foo() -> bool;
     }
@@ -38,19 +38,19 @@ to the type definitions. e.g:
 # #[macro_use]
 # extern crate com_rs;
 # use com_rs::IUnknown;
+# iid!(IID_IFOO = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 # com_interface! {
 #     interface IFoo: IUnknown {
-#         iid: IID_IFOO { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+#         iid: IID_IFOO,
 #         vtable: IFooVtbl,
 #         fn foo() -> bool;
 #     }
 # }
+iid!(IID_IBAR =
+    0x12345678, 0x90AB, 0xCDEF, 0x12, 0x34, 0x56, 0x78, 0x90, 0xAB, 0xCD, 0xEF);
 com_interface! {
     interface IBar: IFoo, IUnknown {
-        iid: IID_IBAR {
-            0x12345678, 0x90AB, 0xCDEF,
-            0x12, 0x34, 0x56, 0x78, 0x90, 0xAB, 0xCD, 0xEF
-        },
+        iid: IID_IBAR,
         vtable: IBarVtbl,
         fn bar(baz: i32) -> ();
     }
@@ -62,7 +62,7 @@ This example defines an interface called `IBar` which extends `IFoo` from the
 previous example. Note that it is necessary to specify the parent types
 for both the interface and trait declarations.
 
-The interface hierarchy automates pointer conversion using the `AsPtr` trait,
+The interface hierarchy automates pointer conversion using the `AsComPtr` trait,
 and the trait hierarchy automatically implements the parent methods for the
 child interface.
 */
@@ -71,15 +71,14 @@ macro_rules! com_interface {
     (
         $(#[$iface_attr:meta])*
         interface $iface:ident: $base_iface:ty {
-            iid: $iid:ident { $d1:expr, $d2:expr, $d3:expr, $($d4:expr),+ },
+            iid: $iid:ident,
             vtable: $vtable:ident,
             $(
                 $(#[$fn_attr:meta])*
                 fn $func:ident($($i:ident: $t:ty),*) -> $rt:ty;
             )*
         }
-    ) =>
-    (
+    ) => (
         #[allow(missing_debug_implementations)]
         #[doc(hidden)]
         #[repr(C)]
@@ -110,13 +109,6 @@ macro_rules! com_interface {
             }
         }
 
-        const $iid: $crate::IID = $crate::IID {
-            data1: $d1,
-            data2: $d2,
-            data3: $d3,
-            data4: [$($d4),+]
-        };
-
         unsafe impl $crate::AsComPtr<$iface> for $iface {}
         unsafe impl $crate::AsComPtr<$base_iface> for $iface {}
 
@@ -127,11 +119,10 @@ macro_rules! com_interface {
         }
     );
 
-
     (
         $(#[$iface_attr:meta])*
         interface $iface:ident: $base_iface:ty, $($extra_base:ty),+ {
-            iid: $iid:ident { $d1:expr, $d2:expr, $d3:expr, $($d4:expr),+ },
+            iid: $iid:ident,
             vtable: $vtable:ident,
             $(
                 $(#[$fn_attr:meta])*
@@ -142,7 +133,7 @@ macro_rules! com_interface {
         com_interface! {
             $(#[$iface_attr])*
             interface $iface: $base_iface {
-                iid: $iid { $d1, $d2, $d3, $($d4),+ },
+                iid: $iid,
                 vtable: $vtable,
                 $($(#[$fn_attr])* fn $func($($i: $t),*) -> $rt;)*
             }
@@ -150,4 +141,51 @@ macro_rules! com_interface {
 
         $(unsafe impl $crate::AsComPtr<$extra_base> for $iface {})*
     )
+}
+
+/**
+Helper macro for defining [`IID`](struct.IID.html) constants.
+
+# Usage
+```
+# #[macro_use]
+# extern crate com_rs;
+iid!(IID_IFOO = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+# fn main() {}
+```
+
+IIDs are private by default as they are only supposed to be exposed by the
+`ComPtr::iid` method. If you want to make them public, just add the `pub`
+keyword before the identifier.
+
+```
+# #[macro_use]
+# extern crate com_rs;
+iid!(pub IID_IBAR = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+# fn main() {}
+```
+
+*/
+#[macro_export]
+macro_rules! iid {
+    ($(#[$iid_attr:meta])*
+    $name:ident = $d1:expr, $d2:expr, $d3:expr, $($d4:expr),*) => (
+        $(#[$iid_attr])*
+        const $name: $crate::IID = $crate::IID {
+            data1: $d1,
+            data2: $d2,
+            data3: $d3,
+            data4: [$($d4),*],
+        };
+    );
+    ($(#[$iid_attr:meta])*
+    pub $name:ident = $d1:expr, $d2:expr, $d3:expr, $($d4:expr),*) => (
+        $(#[$iid_attr])*
+        pub const $name: $crate::IID = $crate::IID {
+            data1: $d1,
+            data2: $d2,
+            data3: $d3,
+            data4: [$($d4),*],
+        };
+    );
 }

@@ -23,12 +23,10 @@ pub struct IUnknownVtbl {
     release: extern "stdcall" fn(*const IUnknown) -> u32
 }
 
-const IID_IUNKNOWN: IID = IID {
-    data1: 0x00000000,
-    data2: 0x0000,
-    data3: 0x0000,
-    data4: [0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46]
-};
+#[link(name = "uuid")]
+extern {
+    static IID_IUnknown: IID;
+}
 
 impl IUnknown {
     /// Retrieves pointers to the supported interfaces on an object.
@@ -56,5 +54,5 @@ unsafe impl AsComPtr<IUnknown> for IUnknown { }
 unsafe impl ::ComInterface for IUnknown {
     #[doc(hidden)]
     type Vtable = IUnknownVtbl;
-    fn iid() -> ::IID { IID_IUNKNOWN }
+    fn iid() -> ::IID { IID_IUnknown }
 }
