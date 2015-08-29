@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `com_rs` crate.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, com_rs">
+
+    <title>com_rs - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <section class="sidebar">
+        
+        <p class='location'></p><script>window.sidebarCurrent = {name: 'com_rs', ty: 'mod', relpath: '../'};</script>
+    </section>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content mod">
+<h1 class='fqn'><span class='in-band'>Crate <a class='mod' href=''>com_rs</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-0' class='srclink' href='../src/com_rs/lib.rs.html#1-70' title='goto source code'>[src]</a></span></h1>
+<div class='docblock'>
+<h1 id="com-rs-0.1.4" class='section-header'><a
+                           href="#com-rs-0.1.4">com-rs 0.1.4</a></h1>
+<p>Rust bindings for the Win32 <a href="https://msdn.microsoft.com/en-us/library/ms680573.aspx">Component Object Model</a>.</p>
+
+<h1 id="overview" class='section-header'><a
+                           href="#overview">Overview</a></h1>
+<p>This crate is composed of three main components:</p>
+
+<ul>
+<li>The <a href="macro.com_interface!.html"><code>com_interface!</code></a> macro for
+defining new interface types.</li>
+<li>The <a href="struct.ComPtr.html"><code>ComPtr</code></a> type for making use of them.</li>
+<li>Definition of <a href="struct.IUnknown.html"><code>IUnknown</code></a>, the base COM interface.</li>
+</ul>
+</div><h2 id='macros' class='section-header'><a href="#macros">Macros</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='macro' href='macro.com_interface!.html'
+                               title='com_rs::com_interface!'>com_interface!</a></td>
+                        <td class='docblock short'>
+                             <p>Macro for generating COM interface definitions.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='macro' href='macro.iid!.html'
+                               title='com_rs::iid!'>iid!</a></td>
+                        <td class='docblock short'>
+                             <p>Helper macro for defining <a href="struct.IID.html"><code>IID</code></a> constants.</p>
+
+                        </td>
+                    </tr>
+                </table><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.ComPtr.html'
+                               title='com_rs::ComPtr'>ComPtr</a></td>
+                        <td class='docblock short'>
+                             <p>Wrapper type for COM interface pointers.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.IID.html'
+                               title='com_rs::IID'>IID</a></td>
+                        <td class='docblock short'>
+                             <p>Interface identifier.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.IUnknown.html'
+                               title='com_rs::IUnknown'>IUnknown</a></td>
+                        <td class='docblock short'>
+                             <p>Base interface for all COM types.</p>
+
+                        </td>
+                    </tr>
+                </table><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.AsComPtr.html'
+                               title='com_rs::AsComPtr'>AsComPtr</a></td>
+                        <td class='docblock short'>
+                             <p>Helper trait for <code>ComPtr</code>. Defines which types of raw pointer can be
+returned by <code>as_ptr</code>/<code>as_mut_ptr</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.ComInterface.html'
+                               title='com_rs::ComInterface'>ComInterface</a></td>
+                        <td class='docblock short'>
+                             <p>Helper trait for <code>ComPtr</code>. Implemented automatically by the
+<code>com_interface!</code> macro.</p>
+
+                        </td>
+                    </tr>
+                </table><h2 id='types' class='section-header'><a href="#types">Type Definitions</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='type' href='type.HResult.html'
+                               title='com_rs::HResult'>HResult</a></td>
+                        <td class='docblock short'>
+                             <p>Result type.</p>
+
+                        </td>
+                    </tr>
+                </table></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <div id="help" class="hidden">
+        <div>
+            <div class="shortcuts">
+                <h1>Keyboard Shortcuts</h1>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h1>Search Tricks</h1>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "com_rs";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script async src="../search-index.js"></script>
+</body>
+</html>

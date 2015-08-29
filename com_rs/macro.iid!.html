@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `iid!` macro in crate `com_rs`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, iid!">
+
+    <title>com_rs::iid! - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <section class="sidebar">
+        
+        <p class='location'><a href='index.html'>com_rs</a></p><script>window.sidebarCurrent = {name: 'iid!', ty: 'macro', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </section>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content macro">
+<h1 class='fqn'><span class='in-band'><a href='index.html'>com_rs</a>::<wbr><a class='macro' href=''>iid!</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-1028' class='srclink' href='../src/com_rs/macros.rs.html#170-191' title='goto source code'>[src]</a></span></h1>
+<pre class='rust macro'>
+<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>iid</span> {
+    ($(<span class='attribute'>#[<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>iid_attr</span>:<span class='ident'>meta</span>]</span>)<span class='op'>*</span>
+    <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>name</span>:<span class='ident'>ident</span> <span class='op'>=</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>d1</span>:<span class='ident'>expr</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>d2</span>:<span class='ident'>expr</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>d3</span>:<span class='ident'>expr</span>, $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>d4</span>:<span class='ident'>expr</span>),<span class='op'>*</span>) <span class='op'>=&gt;</span> (
+        $(<span class='attribute'>#[<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>iid_attr</span>]</span>)<span class='op'>*</span>
+        <span class='kw'>const</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>name</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>crate</span>::<span class='ident'>IID</span> <span class='op'>=</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>crate</span>::<span class='ident'>IID</span> {
+            <span class='ident'>data1</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>d1</span>,
+            <span class='ident'>data2</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>d2</span>,
+            <span class='ident'>data3</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>d3</span>,
+            <span class='ident'>data4</span>: [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>d4</span>),<span class='op'>*</span>],
+        };
+    );
+    ($(<span class='attribute'>#[<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>iid_attr</span>:<span class='ident'>meta</span>]</span>)<span class='op'>*</span>
+    <span class='kw'>pub</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>name</span>:<span class='ident'>ident</span> <span class='op'>=</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>d1</span>:<span class='ident'>expr</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>d2</span>:<span class='ident'>expr</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>d3</span>:<span class='ident'>expr</span>, $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>d4</span>:<span class='ident'>expr</span>),<span class='op'>*</span>) <span class='op'>=&gt;</span> (
+        $(<span class='attribute'>#[<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>iid_attr</span>]</span>)<span class='op'>*</span>
+        <span class='kw'>pub</span> <span class='kw'>const</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>name</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>crate</span>::<span class='ident'>IID</span> <span class='op'>=</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>crate</span>::<span class='ident'>IID</span> {
+            <span class='ident'>data1</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>d1</span>,
+            <span class='ident'>data2</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>d2</span>,
+            <span class='ident'>data3</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>d3</span>,
+            <span class='ident'>data4</span>: [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>d4</span>),<span class='op'>*</span>],
+        };
+    );
+}</pre>
+<div class='docblock'><p>Helper macro for defining <a href="struct.IID.html"><code>IID</code></a> constants.</p>
+
+<h1 id="usage" class='section-header'><a
+                           href="#usage">Usage</a></h1><pre class='rust rust-example-rendered'>
+<span class='macro'>iid</span><span class='macro'>!</span>(<span class='ident'>IID_IFOO</span> <span class='op'>=</span> <span class='number'>0</span>, <span class='number'>0</span>, <span class='number'>0</span>, <span class='number'>0</span>, <span class='number'>0</span>, <span class='number'>0</span>, <span class='number'>0</span>, <span class='number'>0</span>, <span class='number'>0</span>, <span class='number'>0</span>, <span class='number'>0</span>);</pre>
+
+<p>IIDs are private by default as they are only supposed to be exposed by the
+<code>ComPtr::iid</code> method. If you want to make them public, just add the <code>pub</code>
+keyword before the identifier.</p>
+<pre class='rust rust-example-rendered'>
+<span class='macro'>iid</span><span class='macro'>!</span>(<span class='kw'>pub</span> <span class='ident'>IID_IBAR</span> <span class='op'>=</span> <span class='number'>0</span>, <span class='number'>0</span>, <span class='number'>0</span>, <span class='number'>0</span>, <span class='number'>0</span>, <span class='number'>0</span>, <span class='number'>0</span>, <span class='number'>0</span>, <span class='number'>0</span>, <span class='number'>0</span>, <span class='number'>0</span>);</pre>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <div id="help" class="hidden">
+        <div>
+            <div class="shortcuts">
+                <h1>Keyboard Shortcuts</h1>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h1>Search Tricks</h1>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "com_rs";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script async src="../search-index.js"></script>
+</body>
+</html>
