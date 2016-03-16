@@ -96,7 +96,6 @@ macro_rules! com_interface {
         }
 
         $(#[$iface_attr])*
-        #[allow(raw_pointer_derive)]
         #[derive(Debug)]
         #[repr(C)]
         pub struct $iface {

@@ -15,13 +15,13 @@ use super::{AsComPtr, HResult, IID};
 /// None of the methods on this struct should be called directly,
 /// use [`ComPtr`](struct.ComPtr.html) instead.
 
-#[allow(raw_pointer_derive)]
 #[derive(Debug)]
 #[repr(C)]
 pub struct IUnknown {
     vtable: *const IUnknownVtbl
 }
 
+#[allow(missing_debug_implementations)]
 #[repr(C)]
 #[doc(hidden)]
 pub struct IUnknownVtbl {

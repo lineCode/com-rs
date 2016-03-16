@@ -82,7 +82,6 @@ interface is unavailable (or `unknown` is null), the returned object will be
 null.
 */
 
-#[allow(raw_pointer_derive)]
 #[derive(Debug)]
 pub struct ComPtr<T: ComInterface> {
     ptr: *mut T
